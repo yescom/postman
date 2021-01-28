@@ -1,0 +1,1788 @@
+{
+	"info": {
+		"_postman_id": "659f38f9-fcfa-40f5-8ffe-f4163d70e95e",
+		"name": "yes® Relying Party",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Ident",
+			"item": [
+				{
+					"name": "PAR",
+					"item": [
+						{
+							"name": "Discovery",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const jsonData = pm.response.json();",
+											"",
+											"",
+											"/////////////////////////////////////////",
+											"// tests",
+											"/////////////////////////////////////////",
+											"",
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"",
+											"/////////////////////////////////////////",
+											"// update environment",
+											"/////////////////////////////////////////",
+											"",
+											"pm.environment.set(\"rp.request.issuer\", jsonData.issuer);",
+											"pm.environment.set(\"rp.request.pushed_authorization_request_endpoint\", jsonData.pushed_authorization_request_endpoint);",
+											"pm.environment.set(\"rp.request.authorization_endpoint\", jsonData.authorization_endpoint);",
+											"pm.environment.set(\"rp.request.token_endpoint\", jsonData.token_endpoint);",
+											"pm.environment.set(\"rp.request.userinfo_endpoint\", jsonData.userinfo_endpoint);",
+											"pm.environment.set(\"rp.request.introspection_endpoint\", jsonData.introspection_endpoint);",
+											"",
+											"//pm.environment.set(\"rp.request.\", jsonData.);",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{rp.idp.issuer_uri}}/.well-known/openid-configuration",
+									"host": [
+										"{{rp.idp.issuer_uri}}"
+									],
+									"path": [
+										".well-known",
+										"openid-configuration"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "PAR",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const jsonData = pm.response.json();",
+											"",
+											"/////////////////////////////////////////",
+											"// tests",
+											"/////////////////////////////////////////",
+											"",
+											"pm.test(\"Status code is 201\", function () {",
+											"    pm.response.to.have.status(201);",
+											"});",
+											"",
+											"pm.test(\"Header Content-Type is application/json;charset=UTF-8\", function () {",
+											"    pm.response.to.be.header(\"Content-Type\", \"application/json;charset=UTF-8\");",
+											"});",
+											"",
+											"pm.test(\"Header Strict-Transport-Security is max-age=63072000; includeSubDomains; preload\", function () {",
+											"    pm.response.to.be.header(\"Strict-Transport-Security\", \"max-age=63072000; includeSubDomains; preload\");",
+											"});",
+											"",
+											"pm.test(\"request_uri is returned\", function () {",
+											"    pm.expect(jsonData.request_uri).to.exist;",
+											"});",
+											"",
+											"",
+											"/////////////////////////////////////////",
+											"// update environment",
+											"/////////////////////////////////////////",
+											"",
+											"pm.environment.set(\"rp.request.request_uri\", jsonData.request_uri);",
+											"",
+											"/* ToDo: get acr_values from request to decide on skipping Login 2nd Factor or not in automated runs",
+											"function checkKeyt(key) {",
+											"  return key === '';",
+											"}",
+											"console.log(pm.request.body.urlencoded);",
+											"*/",
+											"",
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"// ToDo: generate code_challenge",
+											"pm.environment.set(\"rp.request.code_challenge\", \"E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM\");",
+											"",
+											"// generate random state",
+											"const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';",
+											"let state = '';",
+											"for (let i = 0; i < 40; i++)",
+											"  state += possible.charAt(Math.floor(Math.random() * possible.length));",
+											"pm.environment.set(\"rp.request.state\", state);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/x-www-form-urlencoded;charset=UTF-8",
+										"type": "text",
+										"disabled": true
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/x-www-form-urlencoded",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "client_id",
+											"value": "{{rp.client_id}}",
+											"type": "text"
+										},
+										{
+											"key": "redirect_uri",
+											"value": "{{rp.redirect_uri}}",
+											"type": "text"
+										},
+										{
+											"key": "scope",
+											"value": "openid phone",
+											"type": "text"
+										},
+										{
+											"key": "claims",
+											"value": "{\n \"userinfo\": {\n\"given_name#de-DE\":null\n},\n \"id_token\": {\n\"given_name\":null\n}\n}",
+											"description": "simple",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "claims",
+											"value": "{\n  \"userinfo\": {\n    \"verified_claims\": {\n      \"verification\": {\n        \"trust_framework\": {\n          \"value\": \"de_aml\",\n          \"essential\": true\n        },\n        \"time\": {\n          \"max_age\": 63113852,\n          \"essential\": true\n        },\n        \"verification_process\": null,\n        \"evidence\": [\n          {\n            \"type\": {\n              \"value\": \"id_document\",\n              \"essential\": true\n            },\n            \"method\": {\n              \"value\": \"pipp\",\n              \"essential\": true\n            },\n            \"document\": {\n              \"type\": {\n                \"values\": [\n                  \"idcard\",\n                  \"passport\"\n                ],\n                \"essential\": true\n              },\n              \"issuer\": {\n                \"country\": {\n                  \"value\": \"DE\",\n                  \"essential\": true\n                },\n                \"name\": null\n              },\n              \"date_of_issuance\": null,\n              \"number\": null,\n              \"date_of_expiry\": null,\n              \"verifier\": {\n                \"organization\": null\n              }\n            }\n          }\n        ]\n      },\n      \"claims\": {\n        \"given_name\": null,\n        \"family_name\": null,\n        \"birthdate\": null,\n        \"place_of_birth\": null,\n        \"nationalities\": null,\n        \"address\": null\n      }\n    },\n    \"txn\": null,\n    \"given_name\": null\n  },\n  \"id_token\": {\n    \"given_name\": null,\n    \"verified_claims\": {\n      \"verification\": {\n        \"trust_framework\": {\n          \"value\": \"de_aml\",\n          \"essential\": true\n        },\n        \"time\": {\n          \"essential\": true\n        },\n        \"verification_process\": null,\n        \"evidence\": [\n          {\n            \"type\": {\n              \"value\": \"id_document\",\n              \"essential\": true\n            },\n            \"method\": {\n              \"value\": \"pipp\",\n              \"essential\": true\n            },\n            \"document\": {\n              \"type\": {\n                \"values\": [\n                  \"idcard\",\n                  \"passport\"\n                ],\n                \"essential\": true\n              },\n              \"issuer\": {\n                \"country\": {\n                  \"value\": \"DE\",\n                  \"essential\": true\n                },\n                \"name\": null\n              },\n              \"date_of_issuance\": null,\n              \"number\": null,\n              \"date_of_expiry\": null,\n              \"verifier\": {\n                \"organization\": null\n              }\n            }\n          }\n        ]\n      },\n      \"claims\": {\n        \"given_name\": null,\n        \"family_name\": null\n      }\n    }\n  }\n}\n",
+											"description": "vc",
+											"type": "text"
+										},
+										{
+											"key": "claims",
+											"value": "{\n \"userinfo\": {\n\"given_name\":null,\n\"https://www.yes.com/claims/verified_person_data\": \n  { \n    \"claims\": { \"gibtsnicht\": null}\n  }\n},\n \"id_token\": {\n\"given_name\":null\n}\n}",
+											"description": "vpd",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "acr_values",
+											"value": "https://www.yes.com/acrs/online_banking_sca",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "purpose",
+											"value": "Purpose parameter öäü",
+											"type": "text"
+										},
+										{
+											"key": "https://www.yes.com/parameters/purpose",
+											"value": "yes.com purpose öäüß",
+											"description": "old style",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "state",
+											"value": "{{rp.request.state}}",
+											"description": "generated by Pre-request Script",
+											"type": "text"
+										},
+										{
+											"key": "response_type",
+											"value": "code",
+											"type": "text"
+										},
+										{
+											"key": "code_challenge",
+											"value": "{{rp.request.code_challenge}}",
+											"type": "text"
+										},
+										{
+											"key": "code_challenge_method",
+											"value": "S256",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{rp.request.pushed_authorization_request_endpoint}}",
+									"host": [
+										"{{rp.request.pushed_authorization_request_endpoint}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Authorize",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"/////////////////////////////////////////",
+											"// tests",
+											"/////////////////////////////////////////",
+											"",
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Header X-Frame-Options is DENY\", function () {",
+											"    pm.response.to.be.header(\"X-Frame-Options\", \"DENY\");",
+											"});",
+											"",
+											"pm.test(\"Header Strict-Transport-Security is max-age=63072000; includeSubDomains; preload\", function () {",
+											"    pm.response.to.be.header(\"Strict-Transport-Security\", \"max-age=63072000; includeSubDomains; preload\");",
+											"});",
+											"",
+											"pm.test(\"Header Content-Type is text/html;charset=UTF8\", function () {",
+											"    pm.response.to.be.header(\"Content-Type\", \"text/html;charset=UTF-8\");",
+											"});",
+											"",
+											"pm.test(\"Body contains login form\", function () {",
+											"    pm.expect(pm.response.text()).to.include(\"ui-login-username-input\");",
+											"    pm.expect(pm.response.text()).to.include(\"ui-login-submit-button\");",
+											"    pm.expect(pm.response.text()).to.include(\"ui-login-select-another-bank-button\");",
+											"});",
+											"",
+											"",
+											"/////////////////////////////////////////",
+											"// update environment",
+											"/////////////////////////////////////////",
+											"",
+											"const $ = cheerio.load(responseBody);",
+											"// get login URL",
+											"//pm.environment.set('rp.request.login_url', $(\"form[id='ui-login-form']\").attr('action'));",
+											"// get csrf token",
+											"pm.environment.set('rp.request.csrf', $(\"input[name='_csrf']\").val());"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true,
+								"followRedirects": false
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": []
+								},
+								"url": {
+									"raw": "{{rp.request.authorization_endpoint}}?request_uri={{rp.request.request_uri}}&client_id={{rp.client_id}}",
+									"host": [
+										"{{rp.request.authorization_endpoint}}"
+									],
+									"query": [
+										{
+											"key": "request_uri",
+											"value": "{{rp.request.request_uri}}"
+										},
+										{
+											"key": "client_id",
+											"value": "{{rp.client_id}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Login",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"/////////////////////////////////////////",
+											"// tests",
+											"/////////////////////////////////////////",
+											"",
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"if (true) {",
+											"    pm.test(\"Body contains Consent form\", function () {",
+											"        pm.expect(pm.response.text()).to.include(\"wants you to accept the following for the purpose of\");",
+											"    });",
+											"}",
+											"",
+											"",
+											"/////////////////////////////////////////",
+											"// update environment",
+											"/////////////////////////////////////////",
+											"",
+											"// get csrf token",
+											"const $ = cheerio.load(responseBody);",
+											"pm.environment.set('rp.request.csrf', $(\"input[name='_csrf']\").val());",
+											"",
+											"if (true) postman.setNextRequest(\"Consent\");"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "username",
+											"value": "test001",
+											"type": "text"
+										},
+										{
+											"key": "_csrf",
+											"value": "{{rp.request.csrf}}",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "https://testidpui.{{stage}}yes.com/services/login",
+									"protocol": "https",
+									"host": [
+										"testidpui",
+										"{{stage}}yes",
+										"com"
+									],
+									"path": [
+										"services",
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Login 2nd Factor",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "https://testidpui.{{stage}}yes.com/services/secondfactorlogin",
+									"protocol": "https",
+									"host": [
+										"testidpui",
+										"{{stage}}yes",
+										"com"
+									],
+									"path": [
+										"services",
+										"secondfactorlogin"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Consent",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// get query parameters from Location header",
+											"const loc = pm.response.headers.get('Location');",
+											"const url = require('url');",
+											"let url_parts = url.parse(loc, true);",
+											"const query = url_parts.query;",
+											"",
+											"",
+											"/////////////////////////////////////////",
+											"// tests",
+											"/////////////////////////////////////////",
+											"",
+											"pm.test(\"Status code is 302\", function () {",
+											"    pm.response.to.have.status(302);",
+											"});",
+											"",
+											"pm.test(\"Response contains code\", function () {",
+											"    pm.expect(query.code).to.exist;",
+											"});",
+											"",
+											"pm.test(\"Response contains iss that equals discovered issuer\", function () {",
+											"    pm.expect(query.iss).to.equal(pm.environment.get('rp.request.issuer'));",
+											"});",
+											"",
+											"//const stateRequested = pm.environment.get('rp.request.state') !== '';",
+											"pm.test(\"Response contains state that equals reqest state\", function () {",
+											"    pm.expect(query.state).to.equal(pm.environment.get('rp.request.state'));",
+											"});",
+											"/////////////////////////////////////////",
+											"// update environment",
+											"/////////////////////////////////////////",
+											"",
+											"pm.environment.set('rp.request.code', query.code);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"followRedirects": false
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "submit",
+											"value": "yes®",
+											"type": "text"
+										},
+										{
+											"key": "_csrf",
+											"value": "{{rp.request.csrf}}",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "https://testidpui.{{stage}}yes.com/services/consent",
+									"protocol": "https",
+									"host": [
+										"testidpui",
+										"{{stage}}yes",
+										"com"
+									],
+									"path": [
+										"services",
+										"consent"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Token",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"/////////////////////////////////////////",
+											"// tests",
+											"/////////////////////////////////////////",
+											"",
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"/////////////////////////////////////////",
+											"// prepare next request",
+											"/////////////////////////////////////////",
+											"",
+											"// get access token",
+											"let jsonData = pm.response.json();",
+											"let newAccessToken = jsonData.access_token;",
+											"pm.environment.set(\"rp.request.access_token\", newAccessToken);",
+											"",
+											"/////////////////////////////////////////",
+											"// Visualize",
+											"/////////////////////////////////////////",
+											"function parseJwt (token) {",
+											"    var base64Url = token.split('.')[1];",
+											"    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');",
+											"    var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {",
+											"        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);",
+											"    }).join(''));",
+											"",
+											"    return JSON.parse(jsonPayload);",
+											"}",
+											"",
+											"pm.visualizer.set(`id_token:<br><pre>{{vars}}</pre>`, {",
+											"    vars: JSON.stringify(parseJwt(jsonData.id_token), null, 4)",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/x-www-form-urlencoded"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "client_id",
+											"value": "{{rp.client_id}}",
+											"type": "text"
+										},
+										{
+											"key": "code",
+											"value": "{{rp.request.code}}",
+											"type": "text"
+										},
+										{
+											"key": "grant_type",
+											"value": "authorization_code",
+											"type": "text"
+										},
+										{
+											"key": "redirect_uri",
+											"value": "{{rp.redirect_uri}}",
+											"type": "text"
+										},
+										{
+											"key": "code_verifier",
+											"value": "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{rp.request.token_endpoint}}",
+									"host": [
+										"{{rp.request.token_endpoint}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "UserInfo",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"/////////////////////////////////////////",
+											"// tests",
+											"/////////////////////////////////////////",
+											"",
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{rp.request.access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{rp.request.userinfo_endpoint}}",
+									"host": [
+										"{{rp.request.userinfo_endpoint}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Regular",
+					"item": [
+						{
+							"name": "Discovery",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"let jsonData = pm.response.json();",
+											"",
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"// set environment for the next requests",
+											"pm.environment.set(\"rp.request.issuer\", jsonData.issuer);",
+											"pm.environment.set(\"rp.request.pushed_authorization_request_endpoint\", jsonData.pushed_authorization_request_endpoint);",
+											"pm.environment.set(\"rp.request.authorization_endpoint\", jsonData.authorization_endpoint);",
+											"pm.environment.set(\"rp.request.token_endpoint\", jsonData.token_endpoint);",
+											"pm.environment.set(\"rp.request.userinfo_endpoint\", jsonData.userinfo_endpoint);",
+											"pm.environment.set(\"rp.request.introspection_endpoint\", jsonData.introspection_endpoint);",
+											"",
+											"//pm.environment.set(\"rp.request.\", jsonData.);",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{rp.idp.issuer_uri}}/.well-known/openid-configuration",
+									"host": [
+										"{{rp.idp.issuer_uri}}"
+									],
+									"path": [
+										".well-known",
+										"openid-configuration"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Authorize",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"/////////////////////////////////////////",
+											"// tests",
+											"/////////////////////////////////////////",
+											"",
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Header X-Frame-Options is DENY\", function () {",
+											"    pm.response.to.be.header(\"X-Frame-Options\", \"DENY\");",
+											"});",
+											"",
+											"pm.test(\"Header Strict-Transport-Security is max-age=63072000; includeSubDomains; preload\", function () {",
+											"    pm.response.to.be.header(\"Strict-Transport-Security\", \"max-age=63072000; includeSubDomains; preload\");",
+											"});",
+											"",
+											"pm.test(\"Header Content-Type is text/html;charset=UTF8\", function () {",
+											"    pm.response.to.be.header(\"Content-Type\", \"text/html;charset=UTF-8\");",
+											"});",
+											"",
+											"pm.test(\"Body contains login form\", function () {",
+											"    pm.expect(pm.response.text()).to.include(\"ui-login-username-input\");",
+											"    pm.expect(pm.response.text()).to.include(\"ui-login-submit-button\");",
+											"    pm.expect(pm.response.text()).to.include(\"ui-login-select-another-bank-button\");",
+											"});",
+											"",
+											"",
+											"/////////////////////////////////////////",
+											"// prepare next request",
+											"/////////////////////////////////////////",
+											"",
+											"const $ = cheerio.load(responseBody);",
+											"// get login URL",
+											"//pm.environment.set('rp.request.login_url', $(\"form[id='ui-login-form']\").attr('action'));",
+											"// get csrf token",
+											"pm.environment.set('rp.request.csrf', $(\"input[name='_csrf']\").val());"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"// ToDo: generate code_challenge",
+											"pm.environment.set(\"rp.request.code_challenge\", \"E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM\");",
+											"",
+											"// generate random state",
+											"const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';",
+											"let state = '';",
+											"for (let i = 0; i < 40; i++)",
+											"  state += possible.charAt(Math.floor(Math.random() * possible.length));",
+											"pm.environment.set(\"rp.request.state\", state);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true,
+								"followRedirects": false
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": []
+								},
+								"url": {
+									"raw": "{{rp.request.authorization_endpoint}}?client_id={{rp.client_id}}&redirect_uri={{rp.redirect_uri}}&scope=openid&claims=&state={{rp.request.state}}&response_type=code&code_challenge=13d31e961a1ad8ec2f16b10c4c982e0876a878ad6df144566ee1894acb70f9c3&code_challenge_method=S256&nonce=42",
+									"host": [
+										"{{rp.request.authorization_endpoint}}"
+									],
+									"query": [
+										{
+											"key": "client_id",
+											"value": "{{rp.client_id}}"
+										},
+										{
+											"key": "redirect_uri",
+											"value": "{{rp.redirect_uri}}"
+										},
+										{
+											"key": "scope",
+											"value": "openid"
+										},
+										{
+											"key": "claims",
+											"value": ""
+										},
+										{
+											"key": "acr_values",
+											"value": null,
+											"disabled": true
+										},
+										{
+											"key": "purpose",
+											"value": null,
+											"disabled": true
+										},
+										{
+											"key": "https://www.yes.com/parameters/purpose",
+											"value": null,
+											"disabled": true
+										},
+										{
+											"key": "state",
+											"value": "{{rp.request.state}}",
+											"description": "Generated froom Pre-request Script"
+										},
+										{
+											"key": "response_type",
+											"value": "code"
+										},
+										{
+											"key": "code_challenge",
+											"value": "13d31e961a1ad8ec2f16b10c4c982e0876a878ad6df144566ee1894acb70f9c3"
+										},
+										{
+											"key": "code_challenge_method",
+											"value": "S256"
+										},
+										{
+											"key": "nonce",
+											"value": "42"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Login",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const $ = cheerio.load(responseBody);",
+											"pm.environment.set('rp.request.csrf', $(\"input[name='_csrf']\").val());"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "username",
+											"value": "test001",
+											"type": "text"
+										},
+										{
+											"key": "_csrf",
+											"value": "{{rp.request.csrf}}",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "https://testidpui.{{stage}}yes.com/services/login",
+									"protocol": "https",
+									"host": [
+										"testidpui",
+										"{{stage}}yes",
+										"com"
+									],
+									"path": [
+										"services",
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Login 2nd Factor",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// get csrf token",
+											"const $ = cheerio.load(responseBody);",
+											"pm.environment.set('rp.request.csrf', $(\"input[name='_csrf']\").val());"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "https://testidpui.{{stage}}yes.com/services/secondfactorlogin",
+									"protocol": "https",
+									"host": [
+										"testidpui",
+										"{{stage}}yes",
+										"com"
+									],
+									"path": [
+										"services",
+										"secondfactorlogin"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Consent",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"loc = pm.response.headers.get('Location');",
+											"",
+											"var url = require('url');",
+											"var url_parts = url.parse(loc, true);",
+											"var query = url_parts.query;",
+											"",
+											"pm.environment.set('rp.request.code', query.code)"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"followRedirects": false
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "submit",
+											"value": "yes®",
+											"type": "text"
+										},
+										{
+											"key": "_csrf",
+											"value": "{{rp.request.csrf}}",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "https://testidpui.{{stage}}yes.com/services/consent",
+									"protocol": "https",
+									"host": [
+										"testidpui",
+										"{{stage}}yes",
+										"com"
+									],
+									"path": [
+										"services",
+										"consent"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Token",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"/////////////////////////////////////////",
+											"// tests",
+											"/////////////////////////////////////////",
+											"",
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"/////////////////////////////////////////",
+											"// prepare next request",
+											"/////////////////////////////////////////",
+											"",
+											"// get access token",
+											"let jsonData = pm.response.json();",
+											"let newAccessToken = jsonData.access_token;",
+											"pm.environment.set(\"rp.request.access_token\", newAccessToken);",
+											"",
+											"/////////////////////////////////////////",
+											"// Visualize",
+											"/////////////////////////////////////////",
+											"function parseJwt(token) {",
+											"    var base64Url = token.split('.')[1];",
+											"    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');",
+											"    var jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {",
+											"        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);",
+											"    }).join(''));",
+											"",
+											"    return JSON.parse(jsonPayload);",
+											"}",
+											"",
+											"pm.visualizer.set(`id_token:<br><pre>{{vars}}</pre>`, {",
+											"    vars: JSON.stringify(parseJwt(jsonData.id_token), null, 4)",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/x-www-form-urlencoded"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "client_id",
+											"value": "{{rp.client_id}}",
+											"type": "text"
+										},
+										{
+											"key": "code",
+											"value": "SIsWlYhg61NosNB3t6AAxA.hCL8C-PnwxZC0emSdoDK5w",
+											"type": "text"
+										},
+										{
+											"key": "grant_type",
+											"value": "authorization_code",
+											"type": "text"
+										},
+										{
+											"key": "redirect_uri",
+											"value": "{{rp.redirect_uri}}",
+											"type": "text"
+										},
+										{
+											"key": "code_verifier",
+											"value": "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{rp.request.token_endpoint}}",
+									"host": [
+										"{{rp.request.token_endpoint}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "UserInfo",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"/////////////////////////////////////////",
+											"// tests",
+											"/////////////////////////////////////////",
+											"",
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{rp.request.access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{rp.request.userinfo_endpoint}}",
+									"host": [
+										"{{rp.request.userinfo_endpoint}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Signing",
+			"item": [
+				{
+					"name": "Discovery",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jsonData = pm.response.json();",
+									"",
+									"",
+									"/////////////////////////////////////////",
+									"// tests",
+									"/////////////////////////////////////////",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"",
+									"/////////////////////////////////////////",
+									"// update environment",
+									"/////////////////////////////////////////",
+									"",
+									"pm.environment.set(\"rp.request.issuer\", jsonData.issuer);",
+									"pm.environment.set(\"rp.request.pushed_authorization_request_endpoint\", jsonData.pushed_authorization_request_endpoint);",
+									"pm.environment.set(\"rp.request.authorization_endpoint\", jsonData.authorization_endpoint);",
+									"pm.environment.set(\"rp.request.token_endpoint\", jsonData.token_endpoint);",
+									"pm.environment.set(\"rp.request.userinfo_endpoint\", jsonData.userinfo_endpoint);",
+									"pm.environment.set(\"rp.request.introspection_endpoint\", jsonData.introspection_endpoint);",
+									"",
+									"//pm.environment.set(\"rp.request.\", jsonData.);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{rp.idp.issuer_uri}}/.well-known/oauth-authorization-server",
+							"host": [
+								"{{rp.idp.issuer_uri}}"
+							],
+							"path": [
+								".well-known",
+								"oauth-authorization-server"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PAR",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jsonData = pm.response.json();",
+									"",
+									"/////////////////////////////////////////",
+									"// tests",
+									"/////////////////////////////////////////",
+									"",
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Header Content-Type is application/json;charset=UTF-8\", function () {",
+									"    pm.response.to.be.header(\"Content-Type\", \"application/json;charset=UTF-8\");",
+									"});",
+									"",
+									"pm.test(\"Header Strict-Transport-Security is max-age=63072000; includeSubDomains; preload\", function () {",
+									"    pm.response.to.be.header(\"Strict-Transport-Security\", \"max-age=63072000; includeSubDomains; preload\");",
+									"});",
+									"",
+									"pm.test(\"request_uri is returned\", function () {",
+									"    pm.expect(jsonData.request_uri).to.exist;",
+									"});",
+									"",
+									"",
+									"/////////////////////////////////////////",
+									"// update environment",
+									"/////////////////////////////////////////",
+									"",
+									"pm.environment.set(\"rp.request.request_uri\", jsonData.request_uri);",
+									"",
+									"/* ToDo: get acr_values from request to decide on skipping Login 2nd Factor or not in automated runs",
+									"function checkKeyt(key) {",
+									"  return key === '';",
+									"}",
+									"console.log(pm.request.body.urlencoded);",
+									"*/",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// ToDo: generate code_challenge",
+									"pm.environment.set(\"rp.request.code_challenge\", \"E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM\");",
+									"",
+									"// generate random state",
+									"const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';",
+									"let state = '';",
+									"for (let i = 0; i < 40; i++)",
+									"  state += possible.charAt(Math.floor(Math.random() * possible.length));",
+									"pm.environment.set(\"rp.request.state\", state);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded;charset=UTF-8",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "client_id",
+									"value": "{{rp.client_id}}",
+									"type": "text"
+								},
+								{
+									"key": "redirect_uri",
+									"value": "{{rp.redirect_uri}}",
+									"type": "text"
+								},
+								{
+									"key": "authorization_details",
+									"value": "[{   \"type\":\"sign\",\n      \"locations\":[\n         \"{{rp.sp.client_id}}\"\n      ],\n      \"credentialID\":\"qes_eidas\",\n      \"documentDigests\":[\n         {\n            \"hash\":\"sTOgwOm+474gFj0q0x1iSNspKqbcse4IeiqlDg/HWuI=\",\n            \"label\":\"Kreditvertrag\"\n         },\n         {\n            \"hash\":\"HZQzZmMAIWekfGH0/ZKW1nsdt0xg3H6bZYztgsMTLw0=\",\n            \"label\":\"Vertrag Restschuldversicherung\"\n         }\n      ],\n      \"hashAlgorithmOID\":\"2.16.840.1.101.3.4.2.1\"}]\n",
+									"type": "text"
+								},
+								{
+									"key": "purpose",
+									"value": "Purpose parameter öäü",
+									"type": "text"
+								},
+								{
+									"key": "https://www.yes.com/parameters/purpose",
+									"value": "yes.com purpose öäüß",
+									"description": "old style",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "state",
+									"value": "{{rp.request.state}}",
+									"type": "text"
+								},
+								{
+									"key": "response_type",
+									"value": "code",
+									"type": "text"
+								},
+								{
+									"key": "code_challenge",
+									"value": "{{rp.request.code_challenge}}",
+									"type": "text"
+								},
+								{
+									"key": "code_challenge_method",
+									"value": "S256",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{rp.request.pushed_authorization_request_endpoint}}",
+							"host": [
+								"{{rp.request.pushed_authorization_request_endpoint}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Authorize",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/////////////////////////////////////////",
+									"// tests",
+									"/////////////////////////////////////////",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Header X-Frame-Options is DENY\", function () {",
+									"    pm.response.to.be.header(\"X-Frame-Options\", \"DENY\");",
+									"});",
+									"",
+									"pm.test(\"Header Strict-Transport-Security is max-age=63072000; includeSubDomains; preload\", function () {",
+									"    pm.response.to.be.header(\"Strict-Transport-Security\", \"max-age=63072000; includeSubDomains; preload\");",
+									"});",
+									"",
+									"pm.test(\"Header Content-Type is text/html;charset=UTF8\", function () {",
+									"    pm.response.to.be.header(\"Content-Type\", \"text/html;charset=UTF-8\");",
+									"});",
+									"",
+									"pm.test(\"Body contains login form\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"ui-login-username-input\");",
+									"    pm.expect(pm.response.text()).to.include(\"ui-login-submit-button\");",
+									"    pm.expect(pm.response.text()).to.include(\"ui-login-select-another-bank-button\");",
+									"});",
+									"",
+									"",
+									"/////////////////////////////////////////",
+									"// update environment",
+									"/////////////////////////////////////////",
+									"",
+									"const $ = cheerio.load(responseBody);",
+									"// get login URL",
+									"//pm.environment.set('rp.request.login_url', $(\"form[id='ui-login-form']\").attr('action'));",
+									"// get csrf token",
+									"pm.environment.set('rp.request.csrf', $(\"input[name='_csrf']\").val());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true,
+						"followRedirects": false
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": []
+						},
+						"url": {
+							"raw": "{{rp.request.authorization_endpoint}}?request_uri={{rp.request.request_uri}}&client_id={{rp.client_id}}",
+							"host": [
+								"{{rp.request.authorization_endpoint}}"
+							],
+							"query": [
+								{
+									"key": "request_uri",
+									"value": "{{rp.request.request_uri}}"
+								},
+								{
+									"key": "client_id",
+									"value": "{{rp.client_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/////////////////////////////////////////",
+									"// tests",
+									"/////////////////////////////////////////",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"/*",
+									"if (true) {",
+									"    pm.test(\"Body contains Consent form\", function () {",
+									"        pm.expect(pm.response.text()).to.include(\"wants you to accept the following for the purpose of\");",
+									"    });",
+									"}",
+									"*/",
+									"",
+									"/////////////////////////////////////////",
+									"// update environment",
+									"/////////////////////////////////////////",
+									"",
+									"// get csrf token",
+									"const $ = cheerio.load(responseBody);",
+									"pm.environment.set('rp.request.csrf', $(\"input[name='_csrf']\").val());",
+									"",
+									"//if (true) postman.setNextRequest(\"Consent\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "username",
+									"value": "test001",
+									"type": "text"
+								},
+								{
+									"key": "_csrf",
+									"value": "{{rp.request.csrf}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://testidpui.{{stage}}yes.com/services/login",
+							"protocol": "https",
+							"host": [
+								"testidpui",
+								"{{stage}}yes",
+								"com"
+							],
+							"path": [
+								"services",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login 2nd Factor",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/////////////////////////////////////////",
+									"// tests",
+									"/////////////////////////////////////////",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"if (true) {",
+									"    pm.test(\"Body contains Consent form\", function () {",
+									"        pm.expect(pm.response.text()).to.include(\"wants you to accept the following for the purpose of\");",
+									"    });",
+									"}",
+									"",
+									"",
+									"/////////////////////////////////////////",
+									"// update environment",
+									"/////////////////////////////////////////",
+									"",
+									"// get csrf token",
+									"const $ = cheerio.load(responseBody);",
+									"pm.environment.set('rp.request.csrf', $(\"input[name='_csrf']\").val());",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "submit",
+									"value": "login",
+									"type": "text"
+								},
+								{
+									"key": "_csrf",
+									"value": "{{rp.request.csrf}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://testidpui.{{stage}}yes.com/services/secondfactorlogin",
+							"protocol": "https",
+							"host": [
+								"testidpui",
+								"{{stage}}yes",
+								"com"
+							],
+							"path": [
+								"services",
+								"secondfactorlogin"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Consent",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// get query parameters from Location header",
+									"const loc = pm.response.headers.get('Location');",
+									"const url = require('url');",
+									"let url_parts = url.parse(loc, true);",
+									"const query = url_parts.query;",
+									"",
+									"",
+									"/////////////////////////////////////////",
+									"// tests",
+									"/////////////////////////////////////////",
+									"",
+									"pm.test(\"Status code is 302\", function () {",
+									"    pm.response.to.have.status(302);",
+									"});",
+									"",
+									"pm.test(\"Response contains code\", function () {",
+									"    pm.expect(query.code).to.exist;",
+									"});",
+									"",
+									"pm.test(\"Response contains iss that equals discovered issuer\", function () {",
+									"    pm.expect(query.iss).to.equal(pm.environment.get('rp.request.issuer'));",
+									"});",
+									"",
+									"//const stateRequested = pm.environment.get('rp.request.state') !== '';",
+									"pm.test(\"Response contains state that equals reqest state\", function () {",
+									"    pm.expect(query.state).to.equal(pm.environment.get('rp.request.state'));",
+									"});",
+									"/////////////////////////////////////////",
+									"// update environment",
+									"/////////////////////////////////////////",
+									"",
+									"pm.environment.set('rp.request.code', query.code);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"followRedirects": false
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "submit",
+									"value": "yes®",
+									"type": "text"
+								},
+								{
+									"key": "_csrf",
+									"value": "{{rp.request.csrf}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://testidpui.{{stage}}yes.com/services/consent",
+							"protocol": "https",
+							"host": [
+								"testidpui",
+								"{{stage}}yes",
+								"com"
+							],
+							"path": [
+								"services",
+								"consent"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"/////////////////////////////////////////",
+									"// tests",
+									"/////////////////////////////////////////",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"/////////////////////////////////////////",
+									"// prepare next request",
+									"/////////////////////////////////////////",
+									"",
+									"// get access token",
+									"let jsonData = pm.response.json();",
+									"let newAccessToken = jsonData.access_token;",
+									"pm.environment.set(\"rp.request.access_token\", newAccessToken);",
+									"",
+									"/////////////////////////////////////////",
+									"// Visualize",
+									"/////////////////////////////////////////",
+									"function parseJwt (token) {",
+									"    var base64Url = token.split('.')[1];",
+									"    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');",
+									"    var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {",
+									"        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);",
+									"    }).join(''));",
+									"",
+									"    return JSON.parse(jsonPayload);",
+									"}",
+									"",
+									"pm.visualizer.set(`access_token:<br><pre>{{vars}}</pre>`, {",
+									"    vars: JSON.stringify(parseJwt(jsonData.access_token), null, 4)",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "client_id",
+									"value": "{{rp.client_id}}",
+									"type": "text"
+								},
+								{
+									"key": "code",
+									"value": "{{rp.request.code}}",
+									"type": "text"
+								},
+								{
+									"key": "grant_type",
+									"value": "authorization_code",
+									"type": "text"
+								},
+								{
+									"key": "redirect_uri",
+									"value": "{{rp.redirect_uri}}",
+									"type": "text"
+								},
+								{
+									"key": "code_verifier",
+									"value": "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{rp.request.token_endpoint}}",
+							"host": [
+								"{{rp.request.token_endpoint}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sign Request",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jsonData = pm.response.json();",
+									"",
+									"/////////////////////////////////////////",
+									"// tests",
+									"/////////////////////////////////////////",
+									"",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"  pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response contains SignatureObject\", function () {",
+									"  pm.expect(jsonData).to.have.property('SignatureObject');",
+									"});",
+									"",
+									"",
+									"/////////////////////////////////////////",
+									"// prepare next request",
+									"/////////////////////////////////////////",
+									"",
+									"postman.setNextRequest(\"\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"credentialID\": \"qes_eidas\",\n    \"SAD\": \"{{rp.request.access_token}}\",\n    \"documentDigests\": {\n        \"hashes\": [\n            \"sTOgwOm+474gFj0q0x1iSNspKqbcse4IeiqlDg/HWuI=\",\n            \"HZQzZmMAIWekfGH0/ZKW1nsdt0xg3H6bZYztgsMTLw0=\"\n        ],\n        \"hashAlgorithmOID\": \"2.16.840.1.101.3.4.2.1\"\n    },\n    \"profile\": \"http://uri.etsi.org/19432/v1.1.1#/creationprofile#\",\n    \"signature_format\": \"P\",\n    \"conformance_level\": \"AdES-B-B\"\n}"
+						},
+						"url": {
+							"raw": "{{rp.signdoc_endpoint}}",
+							"host": [
+								"{{rp.signdoc_endpoint}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
