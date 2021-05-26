@@ -280,6 +280,26 @@
 										],
 										"type": "text/javascript"
 									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"/*",
+											"The authorization_endpoint value may already contain query parameters. The parameters need to be preserved, but they can confuse postman.",
+											"",
+											"This script separates the base URL from the query parameters so that postman can handle them separately. The base URL is stored in rp.request.authorization_endpoint.noquery and the request parameters will later be added again before sending the request.",
+											"*/",
+											"let urlString = pm.environment.get(\"rp.request.authorization_endpoint\");",
+											"let paramsParts = urlString.split(\"?\");",
+											"pm.environment.set(\"rp.request.authorization_endpoint.noquery\", paramsParts[0]);",
+											" if(paramsParts.length > 1) {",
+											"   let params = paramsParts[1];",
+											"    params.split(\"&\").forEach(values => pm.request.url.query.add(values));",
+											"}"
+										],
+										"type": "text/javascript"
+									}
 								}
 							],
 							"protocolProfileBehavior": {
@@ -294,9 +314,9 @@
 									"urlencoded": []
 								},
 								"url": {
-									"raw": "{{rp.request.authorization_endpoint}}?request_uri={{rp.request.request_uri}}&client_id={{rp.client_id}}",
+									"raw": "{{rp.request.authorization_endpoint.noquery}}?request_uri={{rp.request.request_uri}}&client_id={{rp.client_id}}",
 									"host": [
-										"{{rp.request.authorization_endpoint}}"
+										"{{rp.request.authorization_endpoint.noquery}}"
 									],
 									"query": [
 										{
@@ -739,7 +759,20 @@
 											"let state = '';",
 											"for (let i = 0; i < 40; i++)",
 											"  state += possible.charAt(Math.floor(Math.random() * possible.length));",
-											"pm.environment.set(\"rp.request.state\", state);"
+											"pm.environment.set(\"rp.request.state\", state);",
+											"",
+											"/*",
+											"The authorization_endpoint value may already contain query parameters. The parameters need to be preserved, but they can confuse postman.",
+											"",
+											"This script separates the base URL from the query parameters so that postman can handle them separately. The base URL is stored in rp.request.authorization_endpoint.noquery and the request parameters will later be added again before sending the request.",
+											"*/",
+											"let urlString = pm.environment.get(\"rp.request.authorization_endpoint\");",
+											"let paramsParts = urlString.split(\"?\");",
+											"pm.environment.set(\"rp.request.authorization_endpoint.noquery\", paramsParts[0]);",
+											" if(paramsParts.length > 1) {",
+											"   let params = paramsParts[1];",
+											"    params.split(\"&\").forEach(values => pm.request.url.query.add(values));",
+											"}"
 										],
 										"type": "text/javascript"
 									}
@@ -757,9 +790,9 @@
 									"urlencoded": []
 								},
 								"url": {
-									"raw": "{{rp.request.authorization_endpoint}}?client_id={{rp.client_id}}&redirect_uri={{rp.redirect_uri}}&scope=openid&claims=&state={{rp.request.state}}&response_type=code&code_challenge=13d31e961a1ad8ec2f16b10c4c982e0876a878ad6df144566ee1894acb70f9c3&code_challenge_method=S256&nonce=42",
+									"raw": "{{rp.request.authorization_endpoint.noquery}}?client_id={{rp.client_id}}&redirect_uri={{rp.redirect_uri}}&scope=openid&claims=&state={{rp.request.state}}&response_type=code&code_challenge=13d31e961a1ad8ec2f16b10c4c982e0876a878ad6df144566ee1894acb70f9c3&code_challenge_method=S256&nonce=42",
 									"host": [
-										"{{rp.request.authorization_endpoint}}"
+										"{{rp.request.authorization_endpoint.noquery}}"
 									],
 									"query": [
 										{
@@ -1351,6 +1384,26 @@
 								],
 								"type": "text/javascript"
 							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"/*",
+									"The authorization_endpoint value may already contain query parameters. The parameters need to be preserved, but they can confuse postman.",
+									"",
+									"This script separates the base URL from the query parameters so that postman can handle them separately. The base URL is stored in rp.request.authorization_endpoint.noquery and the request parameters will later be added again before sending the request.",
+									"*/",
+									"let urlString = pm.environment.get(\"rp.request.authorization_endpoint\");",
+									"let paramsParts = urlString.split(\"?\");",
+									"pm.environment.set(\"rp.request.authorization_endpoint.noquery\", paramsParts[0]);",
+									" if(paramsParts.length > 1) {",
+									"   let params = paramsParts[1];",
+									"    params.split(\"&\").forEach(values => pm.request.url.query.add(values));",
+									"}"
+								],
+								"type": "text/javascript"
+							}
 						}
 					],
 					"protocolProfileBehavior": {
@@ -1365,9 +1418,9 @@
 							"urlencoded": []
 						},
 						"url": {
-							"raw": "{{rp.request.authorization_endpoint}}?request_uri={{rp.request.request_uri}}&client_id={{rp.client_id}}",
+							"raw": "{{rp.request.authorization_endpoint.noquery}}?request_uri={{rp.request.request_uri}}&client_id={{rp.client_id}}",
 							"host": [
-								"{{rp.request.authorization_endpoint}}"
+								"{{rp.request.authorization_endpoint.noquery}}"
 							],
 							"query": [
 								{
